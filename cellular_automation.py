@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class CellularAutomaton2D:
 
     def __init__(
