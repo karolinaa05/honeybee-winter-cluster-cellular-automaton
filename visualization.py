@@ -14,7 +14,7 @@ def run_visualization(
     interval: int = 60,
     save_gif: bool = False,
     gif_name: str = "simulation.gif",
-) -> None:
+):
 
     plt.style.use("dark_background")
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))
@@ -69,38 +69,49 @@ def run_visualization(
         ]
         ax1.legend(handles=legend_items, loc="lower center", ncol=2, fontsize=8, framealpha=0.8)
 
-        im2 = ax2.imshow(
-            automaton.temp,
-            cmap="inferno",
-            vmin=automaton.outside_temp,
-            vmax=35.0,
-            interpolation="nearest",
-        )
-        ax2.set_title("Rozkład temperatury w kłębie (°C)", fontsize=11)
-        ax2.axis("off")
-        cbar = plt.colorbar(im2, ax=ax2, fraction=0.046, pad=0.04)
-        cbar.set_label("Temperatura [°C]")
+        honey_history = [int(np.sum(automaton.grid == 3))]
+        heating_history = [int(np.sum(automaton.grid == 2))]
+
+        line_honey, = ax2.plot([0], honey_history, color="#fff59d", linewidth=2, label="Komórki miodu")
+        line_heat, = ax2.plot([0], heating_history, color="#ff3d00", linewidth=2, label="Grzejące pszczoły")
+        ax2.set_title("Zapasy miodu i aktywność grzania w czasie", fontsize=11)
+        ax2.set_xlabel("Iteracja")
+        ax2.set_ylabel("Liczba komórek")
+        ax2.set_xlim(0, steps)
+        ax2.set_ylim(0, max(honey_history[0], 3600) * 1.1)
+        ax2.legend(loc="upper right", fontsize=9)
+        ax2.grid(True, alpha=0.25)
 
         def update(frame):
             automaton.step()
             im1.set_data(automaton.grid)
-            im2.set_data(automaton.temp)
+
+            honey_left = int(np.sum(automaton.grid == 3))
+            heating_bees = int(np.sum(automaton.grid == 2))
+            honey_history.append(honey_left)
+            heating_history.append(heating_bees)
+
+            x_vals = range(len(honey_history))
+            line_honey.set_data(x_vals, honey_history)
+            line_heat.set_data(x_vals, heating_history)
 
             bee_mask = (automaton.grid == 1) | (automaton.grid == 2)
             avg_t = automaton.temp[bee_mask].mean() if np.any(bee_mask) else automaton.outside_temp
-            honey_left = int(np.sum(automaton.grid == 3))
             fig.suptitle(
                 f"Iteracja: {automaton.iteration} / {steps} | "
-                f"Śr. temp. kłębu: {avg_t:.1f}°C | Komórki miodu: {honey_left}",
+                f"Śr. temp. kłębu: {avg_t:.1f}°C | Miód: {honey_left}",
                 fontsize=12,
             )
-            return im1, im2
+            return im1, line_honey, line_heat
 
-    ani = FuncAnimation(fig, update, frames=steps, interval=interval, blit=False, repeat=False)
-    plt.tight_layout()
+    ani = FuncAnimation(fig, update, frames=steps, interval=interval, blit=False, repeat=False, init_func=lambda: [])
+    plt.tight_layout(rect=[0, 0, 1, 0.92])
 
     if save_gif:
         ani.save(gif_name, writer="pillow", fps=15)
         print(f"Zapisano animację do pliku: {gif_name}")
 
     plt.show()
+    return ani
+
+
