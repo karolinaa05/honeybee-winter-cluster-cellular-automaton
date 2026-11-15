@@ -14,27 +14,27 @@ def main():
     GRID_SIZE = 200
     STEPS = 120
 
-    print("=== AUTOMAT KOMÓRKOWY 2D (200x200) ===")
-    print("Wybierz tryb symulacji:")
-    print("1 - Gra w Życie: Glider (szybowiec)")
-    print("2 - Gra w Życie: Niezmienny (Beehive / Ul)")
-    print("3 - Gra w Życie: Oscylator Pulsar (48 komórek)")
-    print("4 - Gra w Życie: Działo Gospera (duży wzorzec)")
-    print("5 - WŁASNA REGUŁA: Zimowanie kłębu pszczół (termoregulacja + rotacja)")
+    print("=== AUTOMAT KOMÓRKOWY ===")
+    print("tryb symulacji:")
+    print("1 - Gra w Życie: Glider")
+    print("2 - Gra w Życie: Niezmienny")
+    print("3 - Gra w Życie: Oscylator")
+    print("4 - Gra w Życie: Działo Gospera")
+    print("5 - Zimowanie kłębu pszczół")
 
-    choice = input("Twój wybór [1-5, domyślnie 5]: ").strip() or "5"
+    choice = input("wybór [1-5]: ").strip() or "5"
 
-    print("\nWybierz warunek brzegowy:")
-    print("1 - Periodyczny (periodic / torus)")
-    print("2 - Odbijający (reflective)")
-    b_choice = input("Twój wybór [1-2, domyślnie 1]: ").strip() or "1"
+    print("\nwarunek brzegowy:")
+    print("1 - Periodyczny")
+    print("2 - Odbijający")
+    b_choice = input("wybór [1-2]: ").strip() or "1"
     boundary = "periodic" if b_choice == "1" else "reflective"
 
     print("\nWybierz rodzaj sąsiedztwa:")
-    print("1 - Moore'a (8 sąsiadów)")
-    print("2 - Von Neumanna (4 sąsiadów)")
-    print("3 - Heksagonalne (6 sąsiadów na siatce 2D)")
-    n_choice = input("Twój wybór [1-3, domyślnie 3 dla pszczół / 1 dla Gry w Życie]: ").strip()
+    print("1 - Moore'a (8)")
+    print("2 - Von Neumanna (4)")
+    print("3 - Heksagonalne (6)")
+    n_choice = input("wybór [1-3]: ").strip()
     if not n_choice:
         neighborhood = "hexagonal" if choice == "5" else "moore"
     else:
@@ -52,7 +52,7 @@ def main():
             energy=energy,
             outside_temp=-8.0,
         )
-        run_visualization(automaton, steps=STEPS, interval=60)
+        ani = run_visualization(automaton, steps=STEPS, interval=60, save_gif=True, gif_name="bee_winter.gif")
 
         bee_mask = (automaton.grid == 1) | (automaton.grid == 2)
         final_temp = automaton.temp[bee_mask].mean() if np.any(bee_mask) else -8.0
@@ -74,7 +74,7 @@ def main():
             boundary=boundary,
             neighborhood=neighborhood,
         )
-        run_visualization(automaton, steps=STEPS, interval=50)
+        ani = run_visualization(automaton, steps=STEPS, interval=50, save_gif=True, gif_name="game_of_life.gif")
 
 
 if __name__ == "__main__":

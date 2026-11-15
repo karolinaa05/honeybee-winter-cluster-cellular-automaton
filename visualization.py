@@ -19,6 +19,25 @@ def run_visualization(
     plt.style.use("dark_background")
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 6))
 
+    gif_frames = []
+
+    def capture_frame(frame_idx: int) -> None:
+        if not save_gif:
+            return
+        from PIL import Image
+        fig.canvas.draw()
+        rgba = np.asarray(fig.canvas.buffer_rgba())
+        gif_frames.append(Image.fromarray(rgba).convert("RGB"))
+        if frame_idx == steps - 1 and gif_frames:
+            gif_frames[0].save(
+                gif_name,
+                save_all=True,
+                append_images=gif_frames[1:],
+                duration=interval,
+                loop=0,
+            )
+            print(f"Zapisano animację do pliku: {gif_name}")
+
     if automaton.rule_mode == "game_of_life":
         cmap = ListedColormap(["#1e1e1e", "#00e676"])
         im1 = ax1.imshow(automaton.grid, cmap=cmap, vmin=0, vmax=1, interpolation="nearest")
@@ -49,6 +68,8 @@ def run_visualization(
                 ax2.set_ylim(0, alive * 1.3)
 
             fig.suptitle(f"Iteracja: {automaton.iteration} / {steps} | Żywe komórki: {alive}", fontsize=13)
+            fig.suptitle(f"Iteracja: {automaton.iteration} / {steps} | Żywe komórki: {alive}", fontsize=13)
+            capture_frame(frame)
             return im1, line
 
     else:
@@ -102,14 +123,15 @@ def run_visualization(
                 f"Śr. temp. kłębu: {avg_t:.1f}°C | Miód: {honey_left}",
                 fontsize=12,
             )
+            capture_frame(frame)
             return im1, line_honey, line_heat
 
     ani = FuncAnimation(fig, update, frames=steps, interval=interval, blit=False, repeat=False, init_func=lambda: [])
     plt.tight_layout(rect=[0, 0, 1, 0.92])
 
-    if save_gif:
-        ani.save(gif_name, writer="pillow", fps=15)
-        print(f"Zapisano animację do pliku: {gif_name}")
+    #if save_gif:
+    #   ani.save(gif_name, writer="pillow", fps=15)
+    #  print(f"Zapisano animację do pliku: {gif_name}")
 
     plt.show()
     return ani
