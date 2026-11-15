@@ -68,20 +68,13 @@ def create_winter_bee_cluster(size: int = 200, seed: int = 42) -> tuple[np.ndarr
     temp = np.full((size, size), -8.0, dtype=float)
     energy = np.zeros((size, size), dtype=float)
 
-    center_r, center_c = size // 2 + 12, size // 2
+    # 1.Rectangular honey reserve at the top
+    grid[45:75, 65:135] = 3
 
-    # 1.Honey reserve at the top (cluster destination)
-    y, x = np.ogrid[:size, :size]
-    honey_mask = ((y - (center_r - 38)) / 24.0) ** 2 + ((x - center_c) / 48.0) ** 2 <= 1.0
-    honey_random = rng.random((size, size)) < 0.85
-    grid[honey_mask & honey_random] = 3
-
-    # 2.Elliptical winter bee cluster below the honey reserves
-    dist_sq = ((y - center_r) / 28.0) ** 2 + ((x - center_c) / 34.0) ** 2
-    bee_mask = (dist_sq <= 1.0) & (grid == 0)
-
-    grid[bee_mask] = 1
-    temp[bee_mask] = 30.0 - 16.0 * dist_sq[bee_mask]
-    energy[bee_mask] = rng.uniform(55.0, 100.0, size=bee_mask.sum())
+    # 2.Square bee cluster right below the honey
+    grid[75:135, 70:130] = 1
+    temp[75:135, 70:130] = 22.0
+    temp[85:125, 80:120] = 28.0
+    energy[75:135, 70:130] = rng.uniform(55.0, 100.0, size=(60, 60))
 
     return grid, temp, energy
