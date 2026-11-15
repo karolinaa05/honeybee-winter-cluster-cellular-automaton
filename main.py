@@ -52,7 +52,8 @@ def main():
             energy=energy,
             outside_temp=-8.0,
         )
-        ani = run_visualization(automaton, steps=STEPS, interval=60, save_gif=True, gif_name="bee_winter.gif")
+        #ani = run_visualization(automaton, steps=STEPS, interval=60, save_gif=True, gif_name="bee_winter.gif")
+        ani = run_visualization(automaton, steps=STEPS, interval=60)
 
         bee_mask = (automaton.grid == 1) | (automaton.grid == 2)
         final_temp = automaton.temp[bee_mask].mean() if np.any(bee_mask) else -8.0
@@ -74,7 +75,8 @@ def main():
             boundary=boundary,
             neighborhood=neighborhood,
         )
-        ani = run_visualization(automaton, steps=STEPS, interval=50, save_gif=True, gif_name="game_of_life.gif")
+        ani = run_visualization(automaton, steps=STEPS, interval=50)
+        #ani = run_visualization(automaton, steps=STEPS, interval=50, save_gif=True, gif_name="game_of_life.gif")
 
 
 if __name__ == "__main__":

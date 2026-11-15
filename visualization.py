@@ -25,9 +25,10 @@ def run_visualization(
         if not save_gif:
             return
         from PIL import Image
-        fig.canvas.draw()
-        rgba = np.asarray(fig.canvas.buffer_rgba())
-        gif_frames.append(Image.fromarray(rgba).convert("RGB"))
+        if frame_idx %2 ==1:
+            fig.canvas.draw()
+            rgba = np.asarray(fig.canvas.buffer_rgba())
+            gif_frames.append(Image.fromarray(rgba).convert("RGB"))
         if frame_idx == steps - 1 and gif_frames:
             gif_frames[0].save(
                 gif_name,
@@ -36,7 +37,7 @@ def run_visualization(
                 duration=interval,
                 loop=0,
             )
-            print(f"Zapisano animację do pliku: {gif_name}")
+            print(f"Zapisano animacje: {gif_name}")
 
     if automaton.rule_mode == "game_of_life":
         cmap = ListedColormap(["#1e1e1e", "#00e676"])
